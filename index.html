@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101827">
+<meta name="description" content="Avrupa ligleri için istatistiksel futbol maç analiz aracı">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Akıllı İddaa Analiz</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#121d2e;--panel2:#18263a;--line:#293950;--txt:#edf3fb;--muted:#9aabc0;--green:#39d98a;--amber:#ffc857;--red:#ff7474}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#17263b 0,#0b1220 55%);color:var(--txt);font:15px system-ui,-apple-system,Segoe UI,sans-serif}
+header{padding:22px 16px 16px;max-width:920px;margin:auto}h1{font-size:23px;margin:0 0 5px;letter-spacing:.2px}.sub{color:var(--muted);font-size:13px}
+main{max-width:920px;margin:auto;padding:0 14px 36px}.tabs{display:flex;gap:8px;overflow:auto;padding:5px 0 14px}.tab{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:10px 14px;border-radius:12px;white-space:nowrap}.tab.active{background:#1b3a34;border-color:#287b5a;color:#b9ffdc}
+.panel{background:linear-gradient(160deg,#152238,#101a2a);border:1px solid var(--line);border-radius:17px;padding:16px;margin-bottom:13px;box-shadow:0 8px 24px #0003}.panel h2{font-size:17px;margin:0 0 13px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.field{display:flex;flex-direction:column;gap:5px}.field.full{grid-column:1/-1}label{font-size:12px;color:var(--muted)}input,select{width:100%;background:#0b1524;border:1px solid #30445f;border-radius:10px;padding:11px;color:var(--txt);font:inherit;min-width:0}input:focus,select:focus{outline:2px solid #39d98a55;border-color:var(--green)}
+button{border:0;border-radius:11px;padding:12px 15px;background:var(--green);color:#062015;font-weight:750;font-size:14px;cursor:pointer}.secondary{background:#263850;color:#e6f0ff;border:1px solid #3a506d}.danger{background:#482a34;color:#ffd8df;border:1px solid #75404d}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.hint{font-size:12px;color:var(--muted);line-height:1.5;margin:10px 0 0}.metric{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.metric>div{background:#0b1524;border:1px solid var(--line);border-radius:12px;padding:11px}.metric strong{display:block;font-size:19px}.metric span{font-size:11px;color:var(--muted)}
+.pill{display:inline-block;border-radius:99px;padding:4px 8px;background:#263850;color:#c7d7e9;font-size:11px}.good{color:var(--green)}.warn{color:var(--amber)}.bad{color:var(--red)}
+.match{border:1px solid var(--line);border-radius:13px;padding:13px;margin:9px 0;background:#0c1727}.matchtop{display:flex;justify-content:space-between;gap:8px;align-items:start}.teams{font-weight:700;font-size:15px}.muted{color:var(--muted);font-size:12px}.selections{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:11px}.pick{background:#17263a;border-radius:9px;padding:9px;font-size:12px}.pick b{display:block;font-size:16px;margin-top:3px}.bar{height:7px;border-radius:9px;background:#293950;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:var(--green)}
+.hidden{display:none!important}.empty{color:var(--muted);text-align:center;padding:22px 10px}.notice{border-left:3px solid var(--amber);padding:10px 12px;background:#30291b;border-radius:7px;color:#f8e6bd;font-size:12px;line-height:1.5}
+footer{max-width:920px;margin:auto;padding:0 16px 30px;color:var(--muted);font-size:11px;line-height:1.55}
+@media(min-width:680px){.grid.cols3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid.cols4{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header>
+<h1>⚽ Akıllı İddaa Analiz</h1>
+<div class="sub">Avrupa ligleri · Poisson modeli · Oran karşılaştırması · Kupon olasılığı</div>
+</header>
+<main>
+<div class="tabs">
+<button class="tab active" data-tab="add">Maç analizi</button>
+<button class="tab" data-tab="list">Analizlerim</button>
+<button class="tab" data-tab="coupon">Kupon oluştur</button>
+</div>
+<section id="add" class="view">
+<div class="panel">
+<h2>Maç ve takım verileri</h2>
+<div class="grid">
+<div class="field full"><label>Lig</label><select id="league"><option>Premier League</option><option>La Liga</option><option>Bundesliga</option><option>Serie A</option><option>Ligue 1</option><option>Eredivisie</option><option>UEFA Şampiyonlar Ligi</option><option>UEFA Avrupa Ligi</option></select></div>
+<div class="field"><label>Ev sahibi</label><input id="home" placeholder="Örn. Arsenal"></div>
+<div class="field"><label>Deplasman</label><input id="away" placeholder="Örn. Chelsea"></div>
+<div class="field"><label>Ev sahibinin maç başı attığı gol (son 5-10)</label><input id="hgf" type="number" min="0" max="6" step=".01" placeholder="1.8"></div>
+<div class="field"><label>Ev sahibinin maç başı yediği gol</label><input id="hga" type="number" min="0" max="6" step=".01" placeholder="0.9"></div>
+<div class="field"><label>Deplasmanın maç başı attığı gol</label><input id="agf" type="number" min="0" max="6" step=".01" placeholder="1.3"></div>
+<div class="field"><label>Deplasmanın maç başı yediği gol</label><input id="aga" type="number" min="0" max="6" step=".01" placeholder="1.4"></div>
+</div>
+</div>
+<div class="panel">
+<h2>İddaa / piyasa oranları (ondalık)</h2>
+<div class="grid cols3">
+<div class="field"><label>MS 1 oranı</label><input id="o1" type="number" min="1.01" step=".01" placeholder="1.80"></div>
+<div class="field"><label>MS X oranı</label><input id="ox" type="number" min="1.01" step=".01" placeholder="3.50"></div>
+<div class="field"><label>MS 2 oranı</label><input id="o2" type="number" min="1.01" step=".01" placeholder="4.20"></div>
+<div class="field"><label>2,5 Üst oranı</label><input id="ou" type="number" min="1.01" step=".01" placeholder="1.90"></div>
+<div class="field"><label>2,5 Alt oranı</label><input id="oa" type="number" min="1.01" step=".01" placeholder="1.90"></div>
+<div class="field"><label>Karşılıklı gol Var oranı</label><input id="ob" type="number" min="1.01" step=".01" placeholder="1.75"></div>
+</div>
+<div class="actions"><button id="analyze">Maçı analiz et</button><button class="secondary" id="clear">Temizle</button></div>
+<p class="hint">Oranları girmek zorunlu değil. Oran girilirse piyasa marjı normalize edilerek model ile harmanlanır. Takım istatistiklerini güvenilir ve aynı kapsamlı bir kaynaktan gir.</p>
+</div>
+<div id="result"></div>
+</section>
+<section id="list" class="view hidden">
+<div class="panel"><h2>Kaydedilen analizler</h2><div id="saved"></div><div class="actions"><button class="secondary" id="export">JSON dışa aktar</button><button class="danger" id="deleteAll">Tümünü sil</button></div></div>
+</section>
+<section id="coupon" class="view hidden">
+<div class="panel"><h2>Düşük riskli seçim havuzu</h2><p class="hint">Yalnızca %80 ve üzeri tahmini olasılığa sahip seçenekler gösterilir. Bu eşik kazanma garantisi değildir. Birden fazla maçın aynı kupondaki olasılığı çarpılarak hesaplanır.</p>
+<div class="field" style="margin-top:12px"><label>Kupona eklenecek maksimum seçim sayısı</label><select id="maxPicks"><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div>
+<div class="actions"><button id="build">Kupon adaylarını oluştur</button></div><div id="couponResult"></div></div>
+</section>
+</main>
+<footer>
+<strong>Önemli:</strong> Bu uygulama istatistiksel karar desteği sunan bir prototiptir; %80 başarı veya kazanç garantisi vermez. Gerçek zamanlı fikstür, sakatlık, kadro ve oran verileri henüz API'ye bağlı değildir; ilk sürümde manuel girilir. Tahminler geçmiş performansın geleceği garanti etmediği varsayımıyla değerlendirilmelidir. Kaybetmeyi göze alamayacağın parayla bahis yapma.
+</footer>
+<script>
+const $=id=>document.getElementById(id);
+let records=JSON.parse(localStorage.getItem('aa_records')||'[]');
+const fact=n=>{let f=1;for(let i=2;i<=n;i++)f*=i;return f};
+function pois(k,l){return Math.exp(-l)*Math.pow(l,k)/fact(k)}
+function calc(d){
+ const lh=(d.hgf+d.aga)/2, la=(d.agf+d.hga)/2;
+ let p1=0,px=0,p2=0,over=0,btts=0;
+ for(let h=0;h<=10;h++)for(let a=0;a<=10;a++){
+  const p=pois(h,lh)*pois(a,la);
+  if(h>a)p1+=p;else if(h===a)px+=p;else p2+=p;
+  if(h+a>=3)over+=p;if(h>0&&a>0)btts+=p;
+ }
+ const market=[d.o1,d.ox,d.o2].every(x=>x>1)?[1/d.o1,1/d.ox,1/d.o2]:null;
+ let mp=market;if(market){let s=market.reduce((a,b)=>a+b,0);mp=market.map(x=>x/s)}
+ const mix=(model,marketP)=>marketP==null?model:.7*model+.3*marketP;
+ const picks=[
+  {name:'1X (Ev sahibi kaybetmez)',p:mix(p1+px,mp?mp[0]+mp[1]:null),model:p1+px},
+  {name:'X2 (Deplasman kaybetmez)',p:mix(px+p2,mp?mp[1]+mp[2]:null),model:px+p2},
+  {name:'12 (Beraberlik yok)',p:p1+p2,model:p1+p2},
+  {name:'2,5 Alt',p:mix(1-over,d.ou>1&&d.oa>1?(1/d.oa)/((1/d.ou)+(1/d.oa)):null),model:1-over},
+  {name:'2,5 Üst',p:mix(over,d.ou>1&&d.oa>1?(1/d.ou)/((1/d.ou)+(1/d.oa)):null),model:over},
+  {name:'Karşılıklı gol Var',p:btts,model:btts}
+ ];
+ return {lh,la,p1,px,p2,over,btts,picks:picks.sort((a,b)=>b.p-a.p)};
+}
+function val(id){let x=$(id).value.trim();return x===''?null:Number(x)}
+function showResult(r){
+ const d=r.data, c=r.calc;
+ $('result').innerHTML=`<div class="panel"><h2>${esc(d.home)} – ${esc(d.away)}</h2><div class="muted">${esc(d.league)} · Tahmini gol: ${c.lh.toFixed(2)} – ${c.la.toFixed(2)}</div>
+ <div class="metric" style="margin-top:12px"><div><strong>${(c.p1*100).toFixed(1)}%</strong><span>Ev sahibi galibiyeti</span></div><div><strong>${(c.px*100).toFixed(1)}%</strong><span>Beraberlik</span></div><div><strong>${(c.p2*100).toFixed(1)}%</strong><span>Deplasman galibiyeti</span></div></div>
+ <h2 style="margin-top:17px">En yüksek olasılıklı seçenekler</h2>${c.picks.map(p=>`<div style="margin:10px 0"><div class="matchtop"><span>${p.name}</span><b class="${p.p>=.8?'good':p.p>=.65?'warn':'muted'}">${(p.p*100).toFixed(1)}%</b></div><div class="bar"><i style="width:${Math.min(100,p.p*100)}%"></i></div></div>`).join('')}
+ <div class="notice" style="margin-top:14px">Bu yüzdeler model tahminidir. Veri kalitesi, örneklem büyüklüğü, takım gücü farkı ve kadro haberleri sonucu etkiler. %80 eşiği tek başına güvenilirlik kanıtı değildir.</div>
+ <div class="actions"><button class="secondary" onclick="saveCurrent('${r.id}')">Analizi kaydet</button></div></div>`;
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+let current=null;
+$('analyze').onclick=()=>{
+ const d={id:crypto.randomUUID(),league:$('league').value,home:$('home').value.trim(),away:$('away').value.trim(),hgf:val('hgf'),hga:val('hga'),agf:val('agf'),aga:val('aga'),o1:val('o1'),ox:val('ox'),o2:val('o2'),ou:val('ou'),oa:val('oa'),ob:val('ob'),created:new Date().toISOString()};
+ if(!d.home||!d.away||[d.hgf,d.hga,d.agf,d.aga].some(x=>x===null||x<0||x>6)){alert('Takım adlarını ve 0–6 arası dört gol ortalamasını gir.');return}
+ const c=calc(d);current={id:d.id,data:d,calc:c};showResult(current);
+};
+window.saveCurrent=id=>{if(!current)return;records.unshift(current);localStorage.setItem('aa_records',JSON.stringify(records));renderSaved();alert('Analiz bu telefona kaydedildi.')};
+$('clear').onclick=()=>{document.querySelectorAll('#add input').forEach(x=>x.value='');$('result').innerHTML=''};
+function renderSaved(){
+ if(!records.length){$('saved').innerHTML='<div class="empty">Henüz kayıtlı analiz yok.</div>';return}
+ $('saved').innerHTML=records.map(r=>`<div class="match"><div class="matchtop"><div><div class="teams">${esc(r.data.home)} – ${esc(r.data.away)}</div><div class="muted">${esc(r.data.league)} · ${new Date(r.data.created).toLocaleString('tr-TR')}</div></div><button class="danger" onclick="removeOne('${r.id}')">Sil</button></div><div class="muted" style="margin-top:8px">En yüksek: ${esc(r.calc.picks[0].name)} · ${(r.calc.picks[0].p*100).toFixed(1)}%</div></div>`).join('');
+}
+window.removeOne=id=>{records=records.filter(x=>x.id!==id);localStorage.setItem('aa_records',JSON.stringify(records));renderSaved()};
+$('deleteAll').onclick=()=>{if(confirm('Tüm kayıtlar silinsin mi?')){records=[];localStorage.removeItem('aa_records');renderSaved()}};
+$('export').onclick=()=>{const a=document.createElement('a'),blob=new Blob([JSON.stringify(records,null,2)],{type:'application/json'});a.href=URL.createObjectURL(blob);a.download='akilli-iddaa-analizler.json';a.click();URL.revokeObjectURL(a.href)};
+$('build').onclick=()=>{
+ const max=Number($('maxPicks').value), pool=[];
+ records.forEach(r=>r.calc.picks.filter(p=>p.p>=.8).slice(0,2).forEach(p=>pool.push({match:r.data.home+' – '+r.data.away,selection:p.name,p:p.p,id:r.id})));
+ pool.sort((a,b)=>b.p-a.p);
+ const chosen=[],used=new Set();for(const p of pool){if(!used.has(p.id)&&chosen.length<max){chosen.push(p);used.add(p.id)}}
+ if(!chosen.length){$('couponResult').innerHTML='<div class="empty">Henüz %80 eşiğini geçen kayıtlı seçim yok. Önce maç analizi yapıp kaydet.</div>';return}
+ const total=chosen.reduce((a,b)=>a*b.p,1);
+ $('couponResult').innerHTML=`<div class="match" style="margin-top:14px"><div class="teams">Kupon adayları (${chosen.length} seçim)</div>${chosen.map(x=>`<div class="pick" style="margin-top:7px">${esc(x.match)}<b>${esc(x.selection)} · ${(x.p*100).toFixed(1)}%</b></div>`).join('')}<div class="metric" style="margin-top:10px"><div style="grid-column:1/-1"><strong class="${total>=.5?'good':'warn'}">${(total*100).toFixed(2)}%</strong><span>Basit bağımsızlık varsayımıyla tüm seçimlerin birlikte tutma olasılığı</span></div></div><p class="hint">Bu hesap seçimlerin bağımsız olduğunu varsayar; aynı maçtan birden fazla seçim alınmaz. Gerçek kupon olasılığı model hataları ve korelasyon nedeniyle farklı olabilir.</p></div>`;
+};
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('hidden',x.id!==b.dataset.tab));if(b.dataset.tab==='list')renderSaved()});
+renderSaved();
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body></html>

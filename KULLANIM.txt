@@ -1,0 +1,22 @@
+AKILLI IDDAA ANALIZ – ANDROID MVP
+
+İçerik:
+- index.html: Telefon uyumlu analiz uygulaması
+- manifest.webmanifest: Android PWA tanımı
+- sw.js: Basit önbellek desteği
+
+Çalıştırma:
+1. ZIP'i açın ve dosyaları HTTPS destekleyen bir web barındırma alanına yükleyin.
+2. Android telefonda index.html adresini Chrome ile açın.
+3. Chrome menüsünden "Ana ekrana ekle" / "Uygulamayı yükle" seçeneğini kullanın.
+
+ÖNEMLİ SINIRLAMA:
+Bu ilk sürümde canlı fikstür, takım istatistikleri, sakatlık/kadro bilgileri ve bahis oranları API'ye bağlı değildir. Alanlar manuel doldurulur. Canlı bağlantı için API-Football ve oran sağlayıcısı hesabı/anahtarı ile güvenli bir sunucu ara katmanı gerekir. API anahtarını HTML içine koymayın.
+
+Model:
+- Basit Poisson gol dağılımı ile 1-X-2, 2.5 alt/üst ve KG Var olasılıkları
+- MS 1-X-2 oranı girilirse marjdan arındırılmış piyasa olasılığı ve model tahmini %70/%30 ağırlıkla harmanlanır.
+- 2.5 alt/üst oranları girilirse aynı yaklaşım uygulanır.
+- Kupon toplam olasılığı seçim olasılıklarının çarpımıyla yaklaşık hesaplanır; bağımsızlık varsayımı vardır.
+
+Bu araç bahis garantisi veya finansal tavsiye değildir. Tahminler belirsizlik içerir.

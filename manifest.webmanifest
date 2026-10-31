@@ -1,0 +1,9 @@
+{
+  "name": "Akıllı İddaa Analiz",
+  "short_name": "İddaa Analiz",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b1220",
+  "theme_color": "#101827",
+  "description": "Avrupa ligleri için istatistiksel maç analiz aracı"
+}
