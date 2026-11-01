@@ -211,7 +211,7 @@ document.getElementById("loadFixtures").onclick = async () => {
     const response = await fetch(url);
     const data = await response.json();
 
-    if (!response.ok) throw new Error(data.message || "API hatası");
+    if (!response.ok) throw new Error((data.error || data.message || "API hatası") + " | " + JSON.stringify(data.detail || {}));
 
     loadedFixtures = data.response || data.fixtures || [];
 
