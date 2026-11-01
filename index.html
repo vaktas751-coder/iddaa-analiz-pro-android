@@ -135,5 +135,28 @@ $('build').onclick=()=>{
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('hidden',x.id!==b.dataset.tab));if(b.dataset.tab==='list')renderSaved()});
 renderSaved();
 if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+ 
+// CLOUDFLARE WORKER BAGLANTI TESTI
+const API_BASE = "https://iddaa-analiz-api.vaktas751.workers.dev";
+
+const apiStatus = document.createElement("div");
+apiStatus.style.cssText =
+  "padding:12px;margin:12px 0;border-radius:10px;background:#18263a;color:#fff;font-size:13px";
+apiStatus.textContent = "Cloudflare bağlantısı kontrol ediliyor...";
+document.querySelector("header").appendChild(apiStatus);
+
+(async () => {
+  try {
+    const response = await fetch(API_BASE + "/api/health");
+    const data = await response.json();
+
+    apiStatus.textContent = data.keyConfigured
+      ? "✓ Cloudflare bağlantısı başarılı – API anahtarı tanımlı"
+      : "⚠ Worker çalışıyor ancak API anahtarı tanımlanmamış";
+  } catch (error) {
+    apiStatus.textContent = "✗ Bağlantı hatası: " + error.message;
+  }
+})();
+
 </script>
 </body></html>
