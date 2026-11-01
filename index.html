@@ -157,6 +157,123 @@ document.querySelector("header").appendChild(apiStatus);
     apiStatus.textContent = "✗ Bağlantı hatası: " + error.message;
   }
 })();
+// MACLARI API-FOOTBALL'DAN YUKLE
+const fixtureBox = document.createElement("section");
+fixtureBox.style.cssText = "margin:16px;padding:16px;background:#172438;border:1px solid #34445d;border-radius:16px;color:white";
+fixtureBox.innerHTML = `
+<h2>⚽ Canlı Fikstür ve Takım Verileri</h2>
+<label>Maç tarihi</label>
+<input id="fixtureDate" type="date" style="width:100%;padding:12px;margin:8px 0;background:#0b1220;color:white;border:1px solid #40516b;border-radius:10px">
+<button id="loadFixtures" style="width:100%;padding:14px;background:#176b55;color:white;border-radius:10px">Maçları Yükle</button>
+<p id="fixtureMessage">Lig ve tarih seçerek maçları yükleyin.</p>
+<select id="fixtureSelect" style="width:100%;padding:12px;background:#0b1220;color:white;border:1px solid #40516b;border-radius:10px">
+<option value="">Önce maçları yükleyin</option>
+</select>
+`;
+document.querySelector("header").insertAdjacentElement("afterend", fixtureBox);
 
+const fixtureDate = document.getElementById("fixtureDate");
+fixtureDate.value = new Date().toLocaleDateString("en-CA");
+
+const leagueIds = {
+"Premier League": 39,
+"La Liga": 140,
+"Bundesliga": 78,
+"Serie A": 135,
+"Ligue 1": 61,
+"Eredivisie": 88,
+"UEFA Champions League": 2,
+"UEFA Europa League": 3
+};
+
+let loadedFixtures = [];
+
+document.getElementById("loadFixtures").onclick = async () => {
+  const leagueName = document.getElementById("league").selectedOptions[0].text.trim();
+  const leagueId = leagueIds[leagueName];
+  const date = fixtureDate.value;
+  const message = document.getElementById("fixtureMessage");
+  const select = document.getElementById("fixtureSelect");
+
+  if (!leagueId || !date) {
+    message.textContent = "Lig veya tarih seçimi hatalı.";
+    return;
+  }
+
+  message.textContent = "Maçlar yükleniyor...";
+  select.innerHTML = '<option value="">Yükleniyor...</option>';
+
+  try {
+    const url = API_BASE + "/api/fixtures?date=" +
+      encodeURIComponent(date) + "&league=" + leagueId +
+      "&season=2026&timezone=Europe/Istanbul";
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (!response.ok) throw new Error(data.message || "API hatası");
+
+    loadedFixtures = data.response || data.fixtures || [];
+
+    select.innerHTML = '<option value="">Bir maç seçin</option>';
+
+    loadedFixtures.forEach((item, index) => {
+      const home = item.teams.home;
+      const away = item.teams.away;
+      const option = document.createElement("option");
+      option.value = index;
+      option.textContent = home.name + " - " + away.name;
+      select.appendChild(option);
+    });
+
+    message.textContent = loadedFixtures.length
+      ? loadedFixtures.length + " maç bulundu."
+      : "Bu tarihte maç bulunamadı.";
+
+  } catch (error) {
+    message.textContent = "Maç yükleme hatası: " + error.message;
+    select.innerHTML = '<option value="">Maç yüklenemedi</option>';
+  }
+};
+
+document.getElementById("fixtureSelect").onchange = async function() {
+  if (this.value === "") return;
+
+  const item = loadedFixtures[Number(this.value)];
+  const home = item.teams.home;
+  const away = item.teams.away;
+  const leagueId = item.league.id;
+  const season = item.league.season || 2026;
+  const message = document.getElementById("fixtureMessage");
+
+  document.getElementById("home").value = home.name;
+  document.getElementById("away").value = away.name;
+  message.textContent = "Takım istatistikleri yükleniyor...";
+
+  async function getTeamForm(teamId) {
+    const url = API_BASE + "/api/team-form?team=" + teamId +
+      "&league=" + leagueId + "&season=" + season;
+    const response = await fetch(url);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || "Takım verisi alınamadı");
+    return data.data || data;
+  }
+
+  try {
+    const [homeData, awayData] = await Promise.all([
+      getTeamForm(home.id),
+      getTeamForm(away.id)
+    ]);
+
+    document.getElementById("hgf").value = homeData.goalsForAvg ?? "";
+    document.getElementById("hga").value = homeData.goalsAgainstAvg ?? "";
+    document.getElementById("agf").value = awayData.goalsForAvg ?? "";
+    document.getElementById("aga").value = awayData.goalsAgainstAvg ?? "";
+
+    message.textContent = "✓ Takımlar ve istatistikler yüklendi.";
+  } catch (error) {
+    message.textContent = "Takım istatistiği hatası: " + error.message;
+  }
+};
 </script>
 </body></html>
