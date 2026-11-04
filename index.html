@@ -36,7 +36,9 @@ footer{max-width:920px;margin:auto;padding:0 16px 30px;color:var(--muted);font-s
 <div class="panel">
 <h2>Maç ve takım verileri</h2>
 <div class="grid">
-<div class="field full"><label>Lig</label><select id="league"><option>Premier League</option><option>La Liga</option><option>Bundesliga</option><option>Serie A</option><option>Ligue 1</option><option>Eredivisie</option><option>UEFA Şampiyonlar Ligi</option><option>UEFA Avrupa Ligi</option></select></div>
+<div class="field full"><label>Lig</label><select id="league"><option>Premier League</option><option>La Liga</option><option>Bundesliga</option><option>Serie A</option><option>Ligue 1</option><option>Eredivisie</option><option value="UEFA Champions League">UEFA Şampiyonlar Ligi</option>
+<option value="UEFA Europa League">UEFA Avrupa Ligi</option>
+<option value="UEFA Europa Conference League">UEFA Konferans Ligi</option></select></div>
 <div class="field"><label>Ev sahibi</label><input id="home" placeholder="Örn. Arsenal"></div>
 <div class="field"><label>Deplasman</label><input id="away" placeholder="Örn. Chelsea"></div>
 <div class="field"><label>Ev sahibinin maç başı attığı gol (son 5-10)</label><input id="hgf" type="number" min="0" max="6" step=".01" placeholder="1.8"></div>
